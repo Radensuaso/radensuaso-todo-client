@@ -2,15 +2,19 @@ import React, { useState, useContext } from "react";
 import { TodoContext } from "../context/TodoContext";
 import Button from "./Button";
 import TextInput from "./TextInput";
+import Spinner from "./Spinner";
 
 const TodoForm: React.FC = () => {
   const [name, setName] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
   const { addTodo } = useContext(TodoContext);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setLoading(true);
     if (name.trim()) {
       await addTodo(name);
+      setLoading(false);
       setName("");
     }
   };
@@ -23,9 +27,17 @@ const TodoForm: React.FC = () => {
         placeholder="Enter todo"
       />
 
-      <Button type="submit" variant="primary">
-        Add Todo
-      </Button>
+      {!loading && (
+        <Button type="submit" variant="primary">
+          Add Todo
+        </Button>
+      )}
+
+      {loading && (
+        <Button variant="primary">
+          <Spinner size="w-4 h-4" color="white" />
+        </Button>
+      )}
     </form>
   );
 };
