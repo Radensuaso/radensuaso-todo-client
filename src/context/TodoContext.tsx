@@ -87,7 +87,6 @@ const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   }, [token, apiURL, setLoading]);
 
   const addTodo = async (name: string) => {
-    setLoading(true);
     try {
       const newTodo = { name, isComplete: false };
       const response = await axios.post<TodoItem>(
@@ -100,13 +99,10 @@ const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       dispatch({ type: "ADD_TODO", payload: response.data });
     } catch (error) {
       console.error("Error adding todo:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const toggleTodo = async (id: number) => {
-    setLoading(true);
     try {
       const todo = state.find((t) => t.id === id);
       if (todo) {
@@ -118,13 +114,10 @@ const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       }
     } catch (error) {
       console.error("Error toggling todo:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const removeTodo = async (id: number) => {
-    setLoading(true);
     try {
       await axios.delete(`${apiURL}/api/TodoItems/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -132,8 +125,6 @@ const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       dispatch({ type: "REMOVE_TODO", payload: id });
     } catch (error) {
       console.error("Error removing todo:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
