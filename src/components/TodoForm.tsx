@@ -35,7 +35,7 @@ const TodoForm: React.FC = () => {
 
       {loading && (
         <Button variant="primary">
-          <Spinner size="w-4 h-4" color="border-white" />
+          <Spinner size="w-4 h-4" color="white" />
         </Button>
       )}
     </form>
