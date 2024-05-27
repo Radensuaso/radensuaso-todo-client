@@ -1,5 +1,7 @@
+// src/context/AuthContext.tsx
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import { useLoading } from "./LoadingContext";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
@@ -23,6 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true); // Loading state
+  const { setLoading: setGlobalLoading } = useLoading();
   const apiURL = process.env.REACT_APP_API_URL || "http://localhost:5008";
 
   useEffect(() => {
@@ -51,6 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const login = async (username: string, password: string) => {
+    setGlobalLoading(true);
     try {
       const response = await axios.post(`${apiURL}/api/auth/login`, {
         username,
@@ -62,10 +66,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error: any) {
       console.error("Login failed", error.response?.data || error.message);
       throw error;
+    } finally {
+      setGlobalLoading(false);
     }
   };
 
   const register = async (username: string, password: string) => {
+    setGlobalLoading(true);
     try {
       await axios.post(`${apiURL}/api/auth/register`, {
         username,
@@ -79,6 +86,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         error.response?.data || error.message
       );
       throw error;
+    } finally {
+      setGlobalLoading(false);
     }
   };
 

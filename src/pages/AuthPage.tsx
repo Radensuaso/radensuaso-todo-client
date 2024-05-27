@@ -51,7 +51,7 @@ const AuthPage: React.FC = () => {
         <div>
           <h1>{isLogin ? "Login" : "Register"}</h1>
           {errorMessage && (
-            <div className="text-danger mb-4">{errorMessage}</div>
+            <div className="text-center text-danger mb-4">{errorMessage}</div>
           )}
           <form onSubmit={handleSubmit}>
             <div>

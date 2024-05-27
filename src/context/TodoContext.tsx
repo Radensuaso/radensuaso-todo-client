@@ -1,3 +1,4 @@
+// src/context/TodoContext.tsx
 import React, {
   createContext,
   useReducer,
@@ -9,6 +10,7 @@ import React, {
 import axios from "axios";
 import { TodoItem } from "../types/TodoItem";
 import { AuthContext } from "./AuthContext";
+import { useLoading } from "./LoadingContext";
 
 type TodoState = TodoItem[];
 
@@ -58,10 +60,12 @@ const todoReducer = (state: TodoState, action: Action): TodoState => {
 const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(todoReducer, initialState);
   const { token } = useContext(AuthContext);
+  const { setLoading } = useLoading();
   const apiURL = process.env.REACT_APP_API_URL || "http://localhost:5008";
 
   useEffect(() => {
     const fetchTodos = async () => {
+      setLoading(true);
       try {
         const response = await axios.get<TodoItem[]>(
           `${apiURL}/api/TodoItems`,
@@ -72,15 +76,18 @@ const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         dispatch({ type: "SET_TODOS", payload: response.data });
       } catch (error) {
         console.error("Error fetching todos:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     if (token) {
       fetchTodos();
     }
-  }, [token, apiURL]);
+  }, [token, apiURL, setLoading]);
 
   const addTodo = async (name: string) => {
+    setLoading(true);
     try {
       const newTodo = { name, isComplete: false };
       const response = await axios.post<TodoItem>(
@@ -93,10 +100,13 @@ const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       dispatch({ type: "ADD_TODO", payload: response.data });
     } catch (error) {
       console.error("Error adding todo:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const toggleTodo = async (id: number) => {
+    setLoading(true);
     try {
       const todo = state.find((t) => t.id === id);
       if (todo) {
@@ -108,10 +118,13 @@ const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       }
     } catch (error) {
       console.error("Error toggling todo:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const removeTodo = async (id: number) => {
+    setLoading(true);
     try {
       await axios.delete(`${apiURL}/api/TodoItems/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -119,6 +132,8 @@ const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       dispatch({ type: "REMOVE_TODO", payload: id });
     } catch (error) {
       console.error("Error removing todo:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
