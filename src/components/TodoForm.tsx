@@ -11,9 +11,9 @@ const TodoForm: React.FC = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setLoading(true);
-    if (name.trim()) {
-      await addTodo(name);
+    if (name && name.length > 0) {
+      setLoading(true);
+      await addTodo(name.trim());
       setLoading(false);
       setName("");
     }
