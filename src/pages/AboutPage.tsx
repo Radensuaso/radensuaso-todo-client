@@ -7,7 +7,7 @@ const AboutPage: React.FC = () => {
       <h1>Welcome to my Todo App</h1>
       <p>
         This is a simple app to practice with the tech stack React + .NET Core +
-        Postgres.
+        MongoDB.
       </p>
     </Main>
   );
