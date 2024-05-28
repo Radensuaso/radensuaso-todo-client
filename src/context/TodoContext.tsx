@@ -18,15 +18,15 @@ type TodoState = TodoItem[];
 type Action =
   | { type: "SET_TODOS"; payload: TodoItem[] }
   | { type: "ADD_TODO"; payload: TodoItem }
-  | { type: "TOGGLE_TODO"; payload: number }
-  | { type: "REMOVE_TODO"; payload: number };
+  | { type: "TOGGLE_TODO"; payload: string }
+  | { type: "REMOVE_TODO"; payload: string };
 
 interface TodoContextProps {
   state: TodoState;
   dispatch: Dispatch<Action>;
   addTodo: (name: string) => Promise<void>;
-  toggleTodo: (id: number) => Promise<void>;
-  removeTodo: (id: number) => Promise<void>;
+  toggleTodo: (id: string) => Promise<void>;
+  removeTodo: (id: string) => Promise<void>;
 }
 
 const initialState: TodoState = [];
@@ -107,7 +107,7 @@ const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   const toggleTodo = useCallback(
-    async (id: number) => {
+    async (id: string) => {
       try {
         const todo = state.find((t) => t.id === id);
         if (todo) {
@@ -125,7 +125,7 @@ const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   const removeTodo = useCallback(
-    async (id: number) => {
+    async (id: string) => {
       try {
         await axios.delete(`${apiURL}/api/TodoItems/${id}`, {
           headers: { Authorization: `Bearer ${token}` },

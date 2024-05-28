@@ -12,12 +12,12 @@ const Todo: React.FC<TodoItemProps> = React.memo(({ todo }) => {
   const [isExiting, setIsExiting] = useState(false);
 
   const handleToggle = useCallback(() => {
-    toggleTodo(todo.id);
+    todo.id && toggleTodo(todo.id);
   }, [toggleTodo, todo.id]);
 
   const handleRemove = useCallback(() => {
     setIsExiting(true);
-    setTimeout(() => removeTodo(todo.id), 500);
+    setTimeout(() => todo.id && removeTodo(todo.id), 500);
   }, [removeTodo, todo.id]);
 
   return (
