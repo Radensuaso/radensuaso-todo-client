@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useCallback } from "react";
 import ThemeToggle from "./ThemeToggle";
 import NavLink from "./NavLink";
 import { AuthContext } from "../../context/AuthContext";
@@ -8,13 +8,13 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ toggleTheme }) => {
-  const { isAuthenticated } = useContext(AuthContext); // Use AuthContext
+  const { isAuthenticated } = useContext(AuthContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathName = window.location.pathname;
 
-  const handleMenuToggle = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const handleMenuToggle = useCallback(() => {
+    setIsMenuOpen((prevIsMenuOpen) => !prevIsMenuOpen);
+  }, []);
 
   return (
     <nav className="bg-dark-darker fixed right-0 left-0 top-0 z-50 flex flex-wrap items-center justify-between px-5 py-3">
@@ -67,11 +67,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleTheme }) => {
             </li>
             <li className="mr-3">
               {isAuthenticated ? (
-                <NavLink
-                  href={"/auth"}
-                  pathName={pathName}
-                  label={"Logout"}
-                />
+                <NavLink href={"/auth"} pathName={pathName} label={"Logout"} />
               ) : (
                 <NavLink
                   href={"/auth"}
@@ -87,4 +83,4 @@ const Navbar: React.FC<NavbarProps> = ({ toggleTheme }) => {
   );
 };
 
-export default Navbar;
+export default React.memo(Navbar);

@@ -18,4 +18,4 @@ const Spinner: React.FC<SpinnerProps> = ({ size, color }) => {
   );
 };
 
-export default Spinner;
+export default React.memo(Spinner);

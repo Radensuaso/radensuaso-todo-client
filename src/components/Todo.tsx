@@ -1,20 +1,24 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useCallback } from "react";
 import { TodoContext } from "../context/TodoContext";
-import { TodoItem as TodoItemType } from "../types/TodoItem";
+import { TodoItem } from "../types/TodoItem";
 import { FaTrash } from "react-icons/fa";
 
 interface TodoItemProps {
-  todo: TodoItemType;
+  todo: TodoItem;
 }
 
-const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
+const Todo: React.FC<TodoItemProps> = React.memo(({ todo }) => {
   const { toggleTodo, removeTodo } = useContext(TodoContext);
   const [isExiting, setIsExiting] = useState(false);
 
-  const handleRemove = (id: number) => {
+  const handleToggle = useCallback(() => {
+    toggleTodo(todo.id);
+  }, [toggleTodo, todo.id]);
+
+  const handleRemove = useCallback(() => {
     setIsExiting(true);
-    setTimeout(() => removeTodo(id), 500); 
-  };
+    setTimeout(() => removeTodo(todo.id), 500);
+  }, [removeTodo, todo.id]);
 
   return (
     <li
@@ -23,7 +27,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
       }`}
     >
       <span
-        onClick={() => toggleTodo(todo.id)}
+        onClick={handleToggle}
         className={`flex items-center hover-animation text-xl dark:text-white cursor-pointer ${
           todo.isComplete ? "line-through" : ""
         }`}
@@ -32,19 +36,16 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
           type="checkbox"
           checked={todo.isComplete}
           className="hidden"
-          onChange={() => toggleTodo(todo.id)}
+          onChange={handleToggle}
         />
         <span className="custom-checkbox mr-2"></span>
         {todo.name}
       </span>
-      <button
-        onClick={() => handleRemove(todo.id)}
-        className="text-danger hover-animation"
-      >
+      <button onClick={handleRemove} className="text-danger hover-animation">
         <FaTrash />
       </button>
     </li>
   );
-};
+});
 
-export default TodoItem;
+export default Todo;

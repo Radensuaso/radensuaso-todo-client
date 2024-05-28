@@ -14,4 +14,4 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ toggleTheme }) => {
   );
 };
 
-export default ThemeToggle;
+export default React.memo(ThemeToggle);

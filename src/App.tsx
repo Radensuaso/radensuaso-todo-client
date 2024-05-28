@@ -1,17 +1,17 @@
-// src/App.tsx
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useTheme } from "./hooks/useTheme";
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/Footer";
 import { TodoProvider } from "./context/TodoContext";
-import HomePage from "./pages/HomePage";
-import AboutPage from "./pages/AboutPage";
 import { AuthProvider } from "./context/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
-import AuthPage from "./pages/AuthPage";
 import { LoadingProvider, useLoading } from "./context/LoadingContext";
 import LoadingScreen from "./components/LoadingScreen";
+
+const HomePage = lazy(() => import("./pages/HomePage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
 
 const App: React.FC = () => {
   return (
@@ -40,18 +40,20 @@ const AppContent: React.FC = () => {
         }`}
       >
         <Navbar toggleTheme={toggleTheme} />
-        <Routes>
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <HomePage />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Suspense>
         <Footer />
       </div>
     </>

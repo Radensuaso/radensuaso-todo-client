@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useCallback } from "react";
 import { AuthContext } from "../context/AuthContext";
 import Main from "../components/Main";
 import { useNavigate } from "react-router-dom";
@@ -13,30 +13,32 @@ const AuthPage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      if (isLogin) {
-        await login(username, password);
-        navigate("/"); // Redirect to home page after login
-      } else {
-        await register(username, password);
-        navigate("/"); // Redirect to home page after registration and login
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      try {
+        if (isLogin) {
+          await login(username, password);
+          navigate("/");
+        } else {
+          await register(username, password);
+          navigate("/"); 
+        }
+      } catch (error) {
+        console.error(`${isLogin ? "Login" : "Registration"} failed`, error);
+        setErrorMessage(`${isLogin ? "Login" : "Registration"} failed`);
+        if (isLogin) {
+          setIsLogin(false);
+        }
       }
-    } catch (error) {
-      console.error(`${isLogin ? "Login" : "Registration"} failed`, error);
-      setErrorMessage(`${isLogin ? "Login" : "Registration"} failed`);
-      if (isLogin) {
-        // Switch to register mode if login fails
-        setIsLogin(false);
-      }
-    }
-  };
+    },
+    [username, password, isLogin, login, register, navigate]
+  );
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout();
-    navigate("/auth"); // Redirect to auth page after logout
-  };
+    navigate("/auth");
+  }, [logout, navigate]);
 
   return (
     <Main>
@@ -82,4 +84,4 @@ const AuthPage: React.FC = () => {
   );
 };
 
-export default AuthPage;
+export default React.memo(AuthPage);

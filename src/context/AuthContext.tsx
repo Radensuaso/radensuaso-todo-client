@@ -1,5 +1,10 @@
-// src/context/AuthContext.tsx
-import React, { createContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import axios from "axios";
 import { useLoading } from "./LoadingContext";
 
@@ -24,7 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true); // Loading state
+  const [loading, setLoading] = useState<boolean>(true);
   const { setLoading: setGlobalLoading } = useLoading();
   const apiURL = process.env.REACT_APP_API_URL || "http://localhost:5008";
 
@@ -34,9 +39,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setToken(savedToken);
       setIsAuthenticated(true);
     }
-    setLoading(false); // Set loading to false after checking token
+    setLoading(false);
 
-    // Axios response interceptor
     const responseInterceptor = axios.interceptors.response.use(
       (response) => response,
       (error) => {
@@ -47,60 +51,73 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     );
 
-    // Cleanup interceptor on unmount
     return () => {
       axios.interceptors.response.eject(responseInterceptor);
     };
   }, []);
 
-  const login = async (username: string, password: string) => {
-    setGlobalLoading(true);
-    try {
-      const response = await axios.post(`${apiURL}/api/auth/login`, {
-        username,
-        password,
-      });
-      setToken(response.data.token);
-      setIsAuthenticated(true);
-      localStorage.setItem("token", response.data.token);
-    } catch (error: any) {
-      console.error("Login failed", error.response?.data || error.message);
-      throw error;
-    } finally {
-      setGlobalLoading(false);
-    }
-  };
+  const login = useCallback(
+    async (username: string, password: string) => {
+      setGlobalLoading(true);
+      try {
+        const response = await axios.post(`${apiURL}/api/auth/login`, {
+          username,
+          password,
+        });
+        setToken(response.data.token);
+        setIsAuthenticated(true);
+        localStorage.setItem("token", response.data.token);
+      } catch (error: any) {
+        console.error("Login failed", error.response?.data || error.message);
+        throw error;
+      } finally {
+        setGlobalLoading(false);
+      }
+    },
+    [apiURL, setGlobalLoading]
+  );
 
-  const register = async (username: string, password: string) => {
-    setGlobalLoading(true);
-    try {
-      await axios.post(`${apiURL}/api/auth/register`, {
-        username,
-        password,
-      });
-      // Automatically login after successful registration
-      await login(username, password);
-    } catch (error: any) {
-      console.error(
-        "Registration failed",
-        error.response?.data || error.message
-      );
-      throw error;
-    } finally {
-      setGlobalLoading(false);
-    }
-  };
+  const register = useCallback(
+    async (username: string, password: string) => {
+      setGlobalLoading(true);
+      try {
+        await axios.post(`${apiURL}/api/auth/register`, {
+          username,
+          password,
+        });
+        await login(username, password);
+      } catch (error: any) {
+        console.error(
+          "Registration failed",
+          error.response?.data || error.message
+        );
+        throw error;
+      } finally {
+        setGlobalLoading(false);
+      }
+    },
+    [apiURL, login, setGlobalLoading]
+  );
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setToken(null);
     setIsAuthenticated(false);
     localStorage.removeItem("token");
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      isAuthenticated,
+      token,
+      login,
+      register,
+      logout,
+    }),
+    [isAuthenticated, token, login, register, logout]
+  );
 
   return (
-    <AuthContext.Provider
-      value={{ isAuthenticated, token, login, register, logout }}
-    >
+    <AuthContext.Provider value={value}>
       {loading ? <div>Loading...</div> : children}
     </AuthContext.Provider>
   );

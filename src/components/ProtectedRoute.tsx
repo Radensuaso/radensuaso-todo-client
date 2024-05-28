@@ -5,7 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { isAuthenticated, token } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
 
   if (!isAuthenticated) {
     return <Navigate to="/auth" />;
@@ -14,4 +14,4 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   return <>{children}</>;
 };
 
-export default ProtectedRoute;
+export default React.memo(ProtectedRoute);

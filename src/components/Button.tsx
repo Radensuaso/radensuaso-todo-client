@@ -12,9 +12,9 @@ interface ButtonProps {
   onClick?: () => void;
   children: React.ReactNode;
   className?: string;
+  disabled?: boolean;
 }
 
-// Map variants to Tailwind CSS classes
 const variantClasses: Record<ButtonProps["variant"], string> = {
   danger: "bg-danger hover:bg-danger-dark",
   warning: "bg-warning hover:bg-warning-dark",
@@ -30,16 +30,18 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   children,
   className = "",
+  disabled = false,
 }) => {
   return (
     <button
       type={type}
       className={`text-white px-4 py-2 rounded mt-2 w-full ${variantClasses[variant]} ${className}`}
       onClick={onClick}
+      disabled={disabled}
     >
       {children}
     </button>
   );
 };
 
-export default Button;
+export default React.memo(Button);

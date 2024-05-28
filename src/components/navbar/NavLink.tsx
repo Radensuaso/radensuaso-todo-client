@@ -19,4 +19,4 @@ const NavLink: React.FC<Props> = ({ href, pathName, label }) => {
   );
 };
 
-export default NavLink;
+export default React.memo(NavLink);

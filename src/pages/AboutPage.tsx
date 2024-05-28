@@ -1,13 +1,16 @@
 import React from "react";
 import Main from "../components/Main";
 
-const Home: React.FC = () => {
+const AboutPage: React.FC = () => {
   return (
     <Main>
-      <h1>Welcome to the my Todo App</h1>
-      <p>This is a simple app to practice with the tech stack React + .NET Core + Postgres.</p>
+      <h1>Welcome to my Todo App</h1>
+      <p>
+        This is a simple app to practice with the tech stack React + .NET Core +
+        Postgres.
+      </p>
     </Main>
   );
 };
 
-export default Home;
+export default React.memo(AboutPage);

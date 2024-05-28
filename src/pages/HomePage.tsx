@@ -3,7 +3,7 @@ import TodoForm from "../components/TodoForm";
 import TodoList from "../components/TodoList";
 import Main from "../components/Main";
 
-const Home: React.FC = () => {
+const HomePage: React.FC = () => {
   return (
     <Main>
       <div className="m:w-80 md:w-96">
@@ -15,4 +15,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default React.memo(HomePage);

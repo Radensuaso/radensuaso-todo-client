@@ -12,4 +12,4 @@ const Main: React.FC<MainProps> = ({ children }) => {
   );
 };
 
-export default Main;
+export default React.memo(Main);

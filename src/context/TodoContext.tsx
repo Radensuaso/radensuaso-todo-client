@@ -1,4 +1,3 @@
-// src/context/TodoContext.tsx
 import React, {
   createContext,
   useReducer,
@@ -6,6 +5,8 @@ import React, {
   Dispatch,
   useContext,
   useEffect,
+  useCallback,
+  useMemo,
 } from "react";
 import axios from "axios";
 import { TodoItem } from "../types/TodoItem";
@@ -64,6 +65,8 @@ const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const apiURL = process.env.REACT_APP_API_URL || "http://localhost:5008";
 
   useEffect(() => {
+    if (!token) return;
+
     const fetchTodos = async () => {
       setLoading(true);
       try {
@@ -81,59 +84,73 @@ const TodoProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       }
     };
 
-    if (token) {
-      fetchTodos();
-    }
+    fetchTodos();
   }, [token, apiURL, setLoading]);
 
-  const addTodo = async (name: string) => {
-    try {
-      const newTodo = { name, isComplete: false };
-      const response = await axios.post<TodoItem>(
-        `${apiURL}/api/TodoItems`,
-        newTodo,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      dispatch({ type: "ADD_TODO", payload: response.data });
-    } catch (error) {
-      console.error("Error adding todo:", error);
-    }
-  };
+  const addTodo = useCallback(
+    async (name: string) => {
+      try {
+        const newTodo = { name, isComplete: false };
+        const response = await axios.post<TodoItem>(
+          `${apiURL}/api/TodoItems`,
+          newTodo,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        dispatch({ type: "ADD_TODO", payload: response.data });
+      } catch (error) {
+        console.error("Error adding todo:", error);
+      }
+    },
+    [apiURL, token]
+  );
 
-  const toggleTodo = async (id: number) => {
-    try {
-      const todo = state.find((t) => t.id === id);
-      if (todo) {
-        const updatedTodo = { ...todo, isComplete: !todo.isComplete };
-        await axios.put(`${apiURL}/api/TodoItems/${id}`, updatedTodo, {
+  const toggleTodo = useCallback(
+    async (id: number) => {
+      try {
+        const todo = state.find((t) => t.id === id);
+        if (todo) {
+          const updatedTodo = { ...todo, isComplete: !todo.isComplete };
+          await axios.put(`${apiURL}/api/TodoItems/${id}`, updatedTodo, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          dispatch({ type: "TOGGLE_TODO", payload: id });
+        }
+      } catch (error) {
+        console.error("Error toggling todo:", error);
+      }
+    },
+    [apiURL, state, token]
+  );
+
+  const removeTodo = useCallback(
+    async (id: number) => {
+      try {
+        await axios.delete(`${apiURL}/api/TodoItems/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        dispatch({ type: "TOGGLE_TODO", payload: id });
+        dispatch({ type: "REMOVE_TODO", payload: id });
+      } catch (error) {
+        console.error("Error removing todo:", error);
       }
-    } catch (error) {
-      console.error("Error toggling todo:", error);
-    }
-  };
+    },
+    [apiURL, token]
+  );
 
-  const removeTodo = async (id: number) => {
-    try {
-      await axios.delete(`${apiURL}/api/TodoItems/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      dispatch({ type: "REMOVE_TODO", payload: id });
-    } catch (error) {
-      console.error("Error removing todo:", error);
-    }
-  };
+  const contextValue = useMemo(
+    () => ({
+      state,
+      dispatch,
+      addTodo,
+      toggleTodo,
+      removeTodo,
+    }),
+    [state, addTodo, toggleTodo, removeTodo]
+  );
 
   return (
-    <TodoContext.Provider
-      value={{ state, dispatch, addTodo, toggleTodo, removeTodo }}
-    >
-      {children}
-    </TodoContext.Provider>
+    <TodoContext.Provider value={contextValue}>{children}</TodoContext.Provider>
   );
 };
 
