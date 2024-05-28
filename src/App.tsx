@@ -40,7 +40,7 @@ const AppContent: React.FC = () => {
         }`}
       >
         <Navbar toggleTheme={toggleTheme} />
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingScreen />}>
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/about" element={<AboutPage />} />

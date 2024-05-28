@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import axios from "axios";
 import { useLoading } from "./LoadingContext";
+import LoadingScreen from "../components/LoadingScreen";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
@@ -118,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider value={value}>
-      {loading ? <div>Loading...</div> : children}
+      {loading ? <LoadingScreen /> : children}
     </AuthContext.Provider>
   );
 };
